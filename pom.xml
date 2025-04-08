@@ -9,8 +9,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <revision>1.2.1</revision>
-        <koupleless.runime.version>1.2.1</koupleless.runime.version>
+        <revision>1.2.7</revision>
+        <koupleless.runime.version>1.4.2-SNAPSHOT</koupleless.runime.version>
         <project.encoding>UTF-8</project.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <license.maven.plugin>3.0</license.maven.plugin>
@@ -74,6 +74,8 @@
 
     <modules>
 <!--        jdk 8      -->
+        <module>koupleless-adapter-log4j-slf4j-impl-2.17</module>
+        <module>koupleless-adapter-log4j-slf4j-impl-2.11</module>
         <module>koupleless-adapter-log4j2-spring-starter-2.1</module>
         <module>koupleless-adapter-log4j2-spring-starter-2.4</module>
         <module>koupleless-adapter-log4j2-spring-starter-2.7</module>
@@ -82,9 +84,14 @@
         <module>koupleless-adapter-dubbo-2.7</module>
         <module>koupleless-adapter-dubbo-3.1</module>
 
+        <module>koupleless-adapter-mybatis-3.5.15</module>
         <module>koupleless-adapter-apollo-1.6</module>
         <module>koupleless-adapter-springboot-2.3</module>
         <module>koupleless-adapter-logback</module>
+        <module>koupleless-adapter-rocketmq-4.4</module>
+        <module>koupleless-adapter-spring-aop-5.3.27</module>
+        <module>koupleless-adapter-spring-boot-logback-2.7.14</module>
+        <module>koupleless-adaptor-module-resource-load-spring-boot-2.7.14</module>
 
 
         <module>koupleless-adapter-scheduler-spring-2.4.6</module>
@@ -102,8 +109,18 @@
         <module>koupleless-adapter-logback-spring-starter-3.0</module>
         <module>koupleless-adapter-logback-spring-starter-3.2</module>
 
+        <module>koupleless-adapter-spring-aop-6.0.8</module>
+
 <!--        common feature jar for adapters -->
         <module>features/dubbo3-service-model</module>
+        <module>features/koupleless-adapter-utils</module>
+        <module>features/koupleless-adapter-test-utils</module>
+
+<!--        summarize all configurations-->
+        <module>koupleless-adapter-configs</module>
+        <module>koupleless-adapter-logback-core-1.4.12</module>
+        <module>koupleless-adapter-logback-core-1.1.6</module>
+
     </modules>
 
     <dependencyManagement>
@@ -232,9 +249,77 @@
                 <version>3.8.1</version>
             </dependency>
             <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.3</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.maven</groupId>
-                <artifactId>maven-aether-provider</artifactId>
-                <version>3.3.9</version>
+                <artifactId>maven-resolver-provider</artifactId>
+                <version>3.9.9</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa.koupleless</groupId>
+                <artifactId>koupleless-base-build-plugin</artifactId>
+                <version>${koupleless.runime.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-aether-provider</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-supplier</artifactId>
+                <version>1.9.22</version>
+            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven</groupId>-->
+<!--                <artifactId>maven-resolver-provider</artifactId>-->
+<!--                <version>3.8.8</version>-->
+<!--            </dependency>-->
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-transport-http</artifactId>
+                <version>1.9.22</version>
+<!--                <exclusions>-->
+<!--                    <exclusion>-->
+<!--                        <groupId>org.slf4j</groupId>-->
+<!--                        <artifactId>*</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-transport-file</artifactId>
+                <version>1.9.22</version>
+                <exclusions>
+<!--                    <exclusion>-->
+<!--                        <groupId>org.slf4j</groupId>-->
+<!--                        <artifactId>*</artifactId>-->
+<!--                    </exclusion>-->
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-transport-wagon</artifactId>
+                <version>1.9.22</version>
+                <exclusions>
+<!--                    <exclusion>-->
+<!--                        <groupId>org.slf4j</groupId>-->
+<!--                        <artifactId>*</artifactId>-->
+<!--                    </exclusion>-->
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-connector-basic</artifactId>
+                <version>1.9.22</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -452,8 +537,6 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-
-
         </plugins>
     </build>
 
@@ -471,6 +554,19 @@
                             <skip>true</skip>
                         </configuration>
                         <inherited>false</inherited>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -554,6 +650,35 @@
                             <skip>true</skip>
                         </configuration>
                         <inherited>false</inherited>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <additionalparam>-Xdoclint:none</additionalparam>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
